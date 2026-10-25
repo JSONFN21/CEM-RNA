@@ -5,7 +5,7 @@ options for trying different scoring engines and saving extra results.
 
 | Scoring option | What it does |
 | --- | --- |
-| `--engine lazyoutside` · default | Uses approximate P and NED from LazyOutside, then checks the final sequences with Vienna |
+| `--engine lazyoutside` · default | Uses approximate P and NED from LazyOutside, checks each round’s argmax and the final sequences with Vienna |
 | `--engine hybrid` | Uses LinearPartition to pick elites, then Vienna for their exact P and NED |
 | `--engine vienna` | Uses Vienna to score every unique sample |
 

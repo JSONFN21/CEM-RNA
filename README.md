@@ -93,15 +93,18 @@ cem-rna --input data/eterna100.txt --samples 100 --workers 96 --seeds 706 707 70
 
 ## Optimization options
 
-**LazyOutside P/NED → select by P → weight by `1−NED` → final Vienna checks**
+**LazyOutside P/NED → select by P → weight by `1−NED` → Vienna argmax check → repeat**
 
-At the end of the search, Vienna checks the sequences with the best approximate
-P and NED along with the final argmax. Since LazyOutside can overestimate P,
+Vienna checks the initial argmax and the argmax after each round, keeping P and
+NED winners separately across those checks. At the end, it also checks the best
+approximate P and NED sequences and compares them with the earlier argmax
+sequences. Repeated argmax sequences reuse cached scores. LazyOutside still
+scores the samples and supplies the elite weights. Since it can overestimate P,
 the extras engines provide exact scoring for the elites or for every sample.
 
 | Command | How it scores samples | How it weights elites | Final results |
 | --- | --- | --- | --- |
-| **`cem-rna` · default** | Uses LazyOutside P and NED to pick elites by P | `1−NED` | Vienna checks at most three finalists |
+| **`cem-rna` · default** | Uses LazyOutside P and NED to pick elites by P | `1−NED` | Best Vienna P and NED across checked argmax sequences and finalists |
 | `cem-rna-extras --engine lazyoutside` | The same LazyOutside search, with extra tracking available | `1−NED` | Results checked with Vienna and optional structural metrics |
 | `cem-rna-extras --engine hybrid` | LinearPartition picks a shortlist and Vienna scores the elites | Exact `1−NED` | Results checked with Vienna |
 | `cem-rna-extras --engine vienna` | Vienna scores every unique sample | Exact `1−NED` | Exact Vienna results |
@@ -135,7 +138,7 @@ the extras engines provide exact scoring for the elites or for every sample.
 The search stops when both the recent average loss and best objective have gone
 without improvement for `--patience` rounds, or when a round or request limit is
 reached. Repeated samples still count toward the request limit even when their
-scores are cached, while the final Vienna checks are outside that limit.
+scores are cached, while the exact argmax and final Vienna checks are outside that limit.
 
 ```sh
 cem-rna --help
@@ -143,6 +146,9 @@ cem-rna-extras --advanced-help
 ```
 
 ## Eterna100 results
+
+These saved timings predate the Vienna check after each round. The extra cost
+depends on the target length and how often the argmax changes.
 
 The following saved runs used one server with 96 physical cores:
 

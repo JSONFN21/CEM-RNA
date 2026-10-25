@@ -98,6 +98,8 @@ class SearchTracking:
             'best_objective': search.best_value,
             'best_log_probability': search.best_log,
             'best_search_ned': best_ned,
+            'best_vienna_probability': search.best_vienna_probability,
+            'best_vienna_ned': search.best_vienna_ned,
             'umfe_found': bool(self.umfe_sequence) if structure_tracking_enabled else None,
             'umfe_found_step': self.umfe_found_step,
             'structure_checked_unique': len(self.structure_checked),

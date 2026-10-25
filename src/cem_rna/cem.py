@@ -38,6 +38,10 @@ class CEM:
         self.best_log_sequence = ''
         self.best_ned = math.inf
         self.best_ned_sequence = None
+        self.vienna_scores = {}
+        self.vienna_cpu_seconds = 0.0
+        self.best_vienna_probability = 0.0
+        self.best_vienna_ned = math.inf
         self.history = []
         self.best_stale_steps = self.objective_stale_steps = 0
         self.best_found_step = None
@@ -112,6 +116,24 @@ class CEM:
             self.record_winner(sequence, value)
         return np.asarray([s.logp for s in scores])
 
+    # reuse exact checks when the same argmax comes back
+    def check_vienna(self, sequences):
+        missing = list(dict.fromkeys(s for s in sequences if s not in self.vienna_scores))
+        if missing:
+            scores, cpu = validate_finalists(self.target, missing)
+            self.vienna_scores.update(scores)
+            self.vienna_cpu_seconds += cpu
+        return self.vienna_scores
+
+    # keep the search scores, then check the most likely sequence with vienna
+    def score_argmax(self):
+        sequence = self.argmax()
+        self.score([sequence])
+        scores = self.check_vienna([sequence])
+        score, probability = scores[sequence]
+        self.best_vienna_probability = max(self.best_vienna_probability, probability)
+        self.best_vienna_ned = min(self.best_vienna_ned, score.ned)
+
     # pick the top samples and reuse their cached scores
     def select_elites(self, values):
         indices = np.argsort(values)[::-1][:self.config.elites]
@@ -146,7 +168,7 @@ class CEM:
     def record_round(self, mean_loss):
         if not self.config.verbose and self.on_step is None:
             return
-        point = dict(step=self.steps, mean_loss=mean_loss, best_log_probability=self.best_log, best_ned=self.best_ned)
+        point = dict(step=self.steps, mean_loss=mean_loss, best_log_probability=self.best_log, best_ned=self.best_ned, best_vienna_probability=self.best_vienna_probability, best_vienna_ned=self.best_vienna_ned)
         if self.config.verbose:
             self.history.append(point)
         if self.on_step:
@@ -156,7 +178,7 @@ class CEM:
         started = time.perf_counter()
         losses, best_average, stale = [], math.inf, 0
         best_seen = -math.inf
-        self.score([self.argmax()])
+        self.score_argmax()
         stop = 'round_limit'
 
         try:
@@ -168,7 +190,7 @@ class CEM:
                 values = self.score(sequences)
                 losses.append(-float(np.mean(values)))
                 self.update(assignments, values)
-                self.score([self.argmax()])
+                self.score_argmax()
 
                 # see whether our best sequence or recent average got better
                 if self.best_objective > best_seen:
@@ -195,9 +217,10 @@ class CEM:
 
         return self.build_result(stop, started)
 
-    # let vienna check the two winners and our most likely sequence at the end
+    # compare the finalists with every argmax already checked by vienna
     def build_result(self, stop, started):
-        finalists, validation_cpu = validate_finalists(self.target, (self.best_log_sequence, self.best_ned_sequence, self.argmax()))
+        finalists = self.check_vienna((self.best_log_sequence, self.best_ned_sequence, self.argmax()))
+        validation_cpu = self.vienna_cpu_seconds
         best_p = max(finalists, key=lambda sequence: finalists[sequence][1])
         best_ned = min(finalists, key=lambda sequence: finalists[sequence][0].ned)
         score, probability = finalists[best_p]

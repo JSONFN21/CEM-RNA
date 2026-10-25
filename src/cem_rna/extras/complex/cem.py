@@ -30,6 +30,11 @@ class CEM(SimpleCEM):
         self.best_sequence = ''
         self.tracking = SearchTracking(self.config)
 
+    # let extras use its existing vienna cache and shared scoring pool
+    def check_vienna(self, sequences):
+        self.vienna.score(sequences)
+        return {sequence: (self.vienna.cache[sequence], self.vienna.cache[sequence].probability) for sequence in sequences}
+
     def score(self, sequences):
         scores = self.request_scores(sequences)
         values = np.asarray([-s.ned if self.mode.objective == 'ned' else s.logp for s in scores])
