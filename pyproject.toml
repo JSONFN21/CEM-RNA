@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77", "pybind11>=3.0,<4"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cem-rna"
+version = "0.3.0"
+description = "RNA design with LazyOutside and the cross-entropy method"
+readme = "README.md"
+license-files = ["src/native/external/LazyOutside/*LICENSE", "src/native/external/LazyOutside/*AUTHORS"]
+requires-python = ">=3.11"
+dependencies = ["numpy>=2.3,<3", "ViennaRNA==2.7.2"]
+
+
+[project.scripts]
+cem-rna = "cem_rna.cli:main"
+cem-rna-extras = "cem_rna.extras.complex.interface.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cem_rna*"]
+
+
+[tool.setuptools.package-data]
+"cem_rna.extras.complex" = ["README.md"]

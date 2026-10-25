@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.egg-info/
+build/
+dist/
+.venv/
+results/
+results.json
+.DS_Store
+*.dylib
+*.o
+*.log

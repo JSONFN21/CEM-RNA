@@ -1,0 +1,5 @@
+include README.md requirements.txt
+include src/native/assignments.h src/native/lazyoutside_binding.cpp
+recursive-include src/native/external *.h *.cpp README.md *LICENSE *AUTHORS
+include data/eterna100.txt data/README.md
+include src/cem_rna/extras/complex/README.md
