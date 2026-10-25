@@ -1,9 +1,19 @@
 # let vienna check the final p and ned
+import math
 import time
 from .scorer import Score
 
 CALORIES_PER_KILOCALORIE = 1000
 CENTIKCAL_PER_KCAL = 100
+OVERESTIMATION_RATIO = 1.05
+
+
+# keep the warning with the result when an exact check finds overestimation
+def overestimation_warning(approximate_logp, exact_logp):
+    if approximate_logp - exact_logp > math.log(OVERESTIMATION_RATIO):
+        threshold = round((OVERESTIMATION_RATIO - 1) * 100)
+        return f'Warning: LinearPartition probability overestimation above {threshold}% was detected. Rerun with Vienna 1-NED for more reliable scores and potentially better results: cem-rna-extras --engine vienna. Running 5 seeds may help find better sequences, but does not correct the approximate probabilities. See extras/complex for more information.'
+    return None
 
 
 # calculate exact p and optional ned, then let extras reuse the fold for structure checks

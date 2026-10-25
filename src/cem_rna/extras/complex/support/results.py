@@ -25,6 +25,7 @@ def build_result(search, stop, started):
     validation_cpu_seconds = (0.0 if search.vienna is search.scorer else search.vienna.cpu_seconds) + structure_cpu
 
     result = {
+        'warnings': search.warnings,
         'sequence': best_probability_sequence,
         'probability': probability,
         'log_probability': probability_score.logp,

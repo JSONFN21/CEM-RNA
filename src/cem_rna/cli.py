@@ -36,6 +36,9 @@ def label_results(results, targets, seeds):
 
 # show the same small summary for the simple and extra optimizers
 def print_summary(results, elapsed):
+    warnings = dict.fromkeys(message for result in results for message in result.get('warnings', []))
+    for message in warnings:
+        print(message)
     width = max([8, *(len(r['sequence']) for r in results)])
     print(f'{"Target ID":>10} {"Seed":>6} {"Sequence":<{width}} {"P":>12} {"NED":>12} {"uMFE":>5} {"Time (s)":>10}')
     for result in results:

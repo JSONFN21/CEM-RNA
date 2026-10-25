@@ -5,7 +5,7 @@ import time
 import numpy as np
 from .config import Config
 from .scorer import Scorer, native_module
-from .validation import validate_finalists, validate_structure
+from .validation import validate_finalists, validate_structure, overestimation_warning
 from .parallel.parallel_scorer import ScoringPool
 from .structure_parser import build_coupled_design_variables
 
@@ -38,6 +38,7 @@ class CEM:
         self.best_log_sequence = ''
         self.best_ned = math.inf
         self.best_ned_sequence = None
+        self.warnings = []
         self.vienna_scores = {}
         self.vienna_cpu_seconds = 0.0
         self.best_vienna_probability = 0.0
@@ -131,6 +132,9 @@ class CEM:
         self.score([sequence])
         scores = self.check_vienna([sequence])
         score, probability = scores[sequence]
+        warning = overestimation_warning(self.scorer.cache[sequence].logp, score.logp)
+        if warning and warning not in self.warnings:
+            self.warnings.append(warning)
         self.best_vienna_probability = max(self.best_vienna_probability, probability)
         self.best_vienna_ned = min(self.best_vienna_ned, score.ned)
 
@@ -227,6 +231,7 @@ class CEM:
         is_mfe, is_umfe, structure_cpu = validate_structure(best_p, self.target)
         validation_cpu += structure_cpu
         result = dict(
+            warnings=self.warnings,
             sequence=best_p,
             probability=probability,
             log_probability=score.logp,

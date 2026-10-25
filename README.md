@@ -113,26 +113,26 @@ the extras engines provide exact scoring for the elites or for every sample.
 
 | Flag | Default | What it does |
 | --- | --- | --- |
-| `--input` | — | Target file |
-| `--output` | `results/results.json` | Where to save JSON, adding a number when the file already exists |
-| `--json` | Off | Print only JSON in the terminal |
-| `--samples` | 500 | How many sequences to sample each round |
-| `--workers` | 1 | How many scoring workers all puzzles and seeds share |
-| `--concurrent-puzzles` | Up to `2 × workers` | How many puzzle/seed runs can be active at once |
-| `--seed`, `--seeds` | 706, one seed | Use one random seed, or try several for each target |
-| `--alpha` | 0.5 | How far to move toward the elite distribution |
-| `--uniform` | 0.002 | Mix in a little variety when sampling: 0.2% by default |
-| `--elite-fraction` | 0.1 | Keep the top 10% of samples, rounded up |
-| `--initialization` | 0.75 | Favor A and CG/GC pairs |
-| `--beam` | 250 | The beam width used for approximate folding |
-| `--lazy-threshold` | 0.00005 | Controls outside pruning, with larger values pruning more |
-| `--patience` | 25 | The recent average window and how long to wait for improvement |
-| `--max-rounds` | 2,000 | Stop after this many rounds at most |
-| `--max-requests` | 5,000,000 | How many scoring requests each run can make |
+| `--input` | — | Reads target structures from a file |
+| `--output` | `results/results.json` | Sets where the JSON results are saved, adding a number if the file already exists |
+| `--json` | Off | Prints JSON in the terminal instead of the results table |
+| `--samples` | 500 | Sets how many sequences are sampled in each round |
+| `--workers` | 1 | Sets how many scoring workers are shared by all puzzles and seeds |
+| `--concurrent-puzzles` | Up to `2 × workers` | Sets how many puzzle and seed runs can be active at the same time |
+| `--seed`, `--seeds` | 706, one seed | Runs each target with one random seed or with several seeds |
+| `--alpha` | 0.5 | Controls how far the sampling distribution moves toward the elites after each round |
+| `--uniform` | 0.002 | Mixes uniform sampling into the learned distribution, using 0.2% by default |
+| `--elite-fraction` | 0.1 | Sets the fraction of samples kept as elites, rounding the count up |
+| `--initialization` | 0.75 | Favors A at unpaired positions and CG/GC at paired positions |
+| `--beam` | 250 | Sets the beam width for approximate folding |
+| `--lazy-threshold` | 0.00005 | Controls how much work is pruned during the outside pass, with larger values pruning more |
+| `--patience` | 25 | Sets how many rounds are used for the recent average and how long to wait for improvement |
+| `--max-rounds` | 2,000 | Stops the search when it reaches this many rounds |
+| `--max-requests` | 5,000,000 | Sets how many scoring requests each run can make before it stops |
 | `--probability-floor`, `--log-clip` | `1e-15`, `60` | Keep very small probabilities and exponentials well behaved |
-| `--verbose` | Off | Include round history and search progress details in the saved results |
+| `--verbose` | Off | Adds the round history and search progress details to the saved results |
 | `--help` | — | Show the command line options |
-| Extras: `--engine` | `lazyoutside` | Choose `lazyoutside`, `hybrid`, or `vienna` |
+| Extras: `--engine` | `lazyoutside` | Selects `lazyoutside`, `hybrid`, or `vienna` as the scoring engine |
 | Extras: `--tracking` | `basic` | Save P and NED with `basic`, check elite structures with `elites`, or check samples for uMFE with `umfe` |
 
 The search stops when both the recent average loss and best objective have gone
